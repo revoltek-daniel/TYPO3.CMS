@@ -1086,7 +1086,6 @@ class TypoScriptFrontendController implements LoggerAwareInterface
             // If no page, we try to find the page above in the rootLine.
             // Page is 'not found' in case the id itself was not an accessible page. code 1
             $this->pageNotFound = 1;
-            $requestedPageIsHidden = false;
             try {
                 $hiddenField = $GLOBALS['TCA']['pages']['ctrl']['enablecolumns']['disabled'] ?? '';
                 $includeHiddenPages = $this->context->getPropertyFromAspect('visibility', 'includeHiddenPages') || $this->isBackendUserLoggedIn();
@@ -1108,8 +1107,6 @@ class TypoScriptFrontendController implements LoggerAwareInterface
                             throw new PageNotFoundException($message, 1674539331);
                         }
                     }
-
-                    $requestedPageIsHidden = (bool)$rawPageRecord[$hiddenField];
                 }
 
                 $requestedPageRowWithoutGroupCheck = $this->sys_page->getPage($this->id, true);
@@ -1135,7 +1132,7 @@ class TypoScriptFrontendController implements LoggerAwareInterface
                 $this->rootLine = [];
             }
             // If still no page...
-            if ($requestedPageIsHidden || (empty($requestedPageRowWithoutGroupCheck) && empty($this->page))) {
+            if (empty($requestedPageRowWithoutGroupCheck) && empty($this->page)) {
                 $message = 'The requested page does not exist!';
                 try {
                     $response = GeneralUtility::makeInstance(ErrorController::class)->pageNotFoundAction(
